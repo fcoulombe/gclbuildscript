@@ -22,20 +22,25 @@
 import RunProgram
 import os.path
 
-
-def SConsWalk(self, dir, ignore):
-    out = RunProgram.RunProgram("find . | grep SConscript")
-    for line in out:
+def SConsWalkList(self, list, ignore):
+    for line in list:
         script = line.strip()
         if script == ignore:
             continue
          
+        #print "Parsing... "+line
         env = self.Clone()
         self.Export('env')
+        env.StampTime("parsing..." + line)
         self.SConscript(script, variant_dir='build/'+os.path.dirname(script), duplicate=0)
+
+def SConsWalk(self, dir, ignore):
+    out = RunProgram.RunProgram("find . | grep SConscript")
+    self.SConsWalkList(out)
 
 def generate(env, *args, **kw):
     env.AddMethod(SConsWalk)
+    env.AddMethod(SConsWalkList)
 
 
 def exists():
