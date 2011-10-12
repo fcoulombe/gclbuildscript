@@ -25,15 +25,24 @@ import SCons.Builder
 import subprocess
 
 
-def builder_unit_test(target, source, env):
+valgrindExe = ['/usr/local/bin/valgrind --leak-check=full --dsymutil=yes --quiet  --show-reachable=yes ']
+extraValgrindOptions = ""
+
+     
+
+def builder_unit_test_with_valgrind(target, source, env):
+    suppressionFiles = [env.File('#tools/GCL_test.supp') , 
+                        env.File('#tools/helloworld.supp') ,
+                        env.File('#tools/SDL.supp') ,
+                         ]
+
     app = str(source[0].abspath)
     cwd = os.getcwd()
-    #os.chdir(os.path.dirname(app))
-    print "[TEST]: %s" % app
-    p = subprocess.Popen([app], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
+    print "[Valgrind TEST]: %s" % app
+    cmdLine = [valgrindExe + suppressionString + app]
+    print cmdLine
+    p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
     stdout, stderr  = p.communicate()
-    print stdout
-    print stderr
     if  stderr and len(stderr) != 0:
         print stderr
         return 1
@@ -43,12 +52,26 @@ def builder_unit_test(target, source, env):
     open(str(target[0]),'w').write("PASSED\n")
     return 0
     
-    #if os.spawnl(os.P_WAIT, app, app)==0:
-    #    open(str(target[0]),'w').write("PASSED\n")
-    #    #os.chdir(cwd)
-    #else:
-        #os.chdir(cwd)
-    #return 1
+
+def builder_unit_test(target, source, env):
+    app = str(source[0].abspath)
+    cwd = os.getcwd()
+    print "[TEST]: %s" % app
+    cmdLine = [app]
+    
+    p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
+    stdout, stderr  = p.communicate()
+    #print stdout
+    #print stderr
+    if  stderr and len(stderr) != 0:
+        print stderr
+        return 1
+    if p.returncode != 0:
+        print stderr
+        return 1
+    open(str(target[0]),'w').write("PASSED\n")
+    return 0
+    
 
 def builder_rsync(target, source, env):
     for t in target:
@@ -112,7 +135,13 @@ def generate(env, *args, **kw):
     env.AddMethod(BuildFiles)
     
     # Create a builder for tests
-    bld = env.Builder(action = builder_unit_test)
+    bld = None
+    if env.GetOption('useValgrind'):
+        for s in suppressionFiles:
+            extraValgrindOptions += " --suppressions=" + "".join(s.abspath)
+        bld = env.Builder(action = builder_unit_test_with_valgrind)
+    else:
+        bld = env.Builder(action = builder_unit_test)
     env.Append(BUILDERS = {'Test' :  bld})
 
     # Create a builder for RSync
