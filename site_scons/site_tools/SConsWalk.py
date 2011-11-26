@@ -22,7 +22,7 @@
 import RunProgram
 import os.path
 
-def SConsWalkList(self, list, ignore):
+def SConsWalkList(self, list, ignore, variant):
     for line in list:
         script = line.strip()
         if script == ignore:
@@ -31,12 +31,12 @@ def SConsWalkList(self, list, ignore):
         #print "Parsing... "+line
         env = self.Clone()
         self.Export('env')
-        env.StampTime("parsing..." + line)
-        self.SConscript(script, variant_dir='build/'+os.path.dirname(script), duplicate=0)
+        #env.StampTime("parsing..." + line)
+        self.SConscript(script, variant_dir='build/'+variant+'/'+os.path.dirname(script), duplicate=0)
 
-def SConsWalk(self, dir, ignore):
+def SConsWalk(self, dir, ignore, variant):
     out = RunProgram.RunProgram("find . | grep SConscript")
-    self.SConsWalkList(out)
+    self.SConsWalkList(out, variant)
 
 def generate(env, *args, **kw):
     env.AddMethod(SConsWalk)
