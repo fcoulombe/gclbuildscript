@@ -50,7 +50,7 @@ def ExpandDependencies(dependencies, expandedDependencyList):
     global componentList
     for dep in dependencies:
         ExpandDependencies(componentList[dep].dependencies, expandedDependencyList)
-        expandedDependencyList.append(dep)
+        expandedDependencyList.insert(0,dep)
     
     
 def AppendDependenciesCFlags(self, dependencies):
@@ -67,7 +67,7 @@ def AppendDependenciesLFlags(self, dependencies):
     ExpandDependencies(dependencies, expandedDependencyList)    
     for dep in expandedDependencyList:
         if componentList[dep].lib:
-            self.Append(LINKFLAGS=componentList[dep].lib)
+            self.Prepend(LINKFLAGS=componentList[dep].lib)
         else:
             componentList[dep].LFlagsSetter(self)      
     
