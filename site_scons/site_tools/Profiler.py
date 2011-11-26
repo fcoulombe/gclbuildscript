@@ -26,7 +26,7 @@ startTime = t = time.clock()
 
 def StampTime(self, msg):
     t = time.clock()
-    print "%f - %s" % (10*(t-startTime) , msg)
+    print "%f \t- %s" % (10*(t-startTime) , msg)
     
     
 def generate(env, *args, **kw):
