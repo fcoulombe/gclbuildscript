@@ -30,21 +30,36 @@ def BuildFiles(self, src_files, dependencies):
     return objs
     
 def KProgram(self, name, src_files, dependencies):
-    objs = self.BuildFiles(src_files, dependencies)
-    self.AppendDependenciesLFlags(dependencies)
+    expandedDependencyList = []
+    self.ExpandDependencies( dependencies, expandedDependencyList)   
+    if self.GetOption("print-component-dependencies"): 
+        print "prog: %s \t\tdep: %s" % (name,expandedDependencyList)
+        for f in src_files:
+            print "src: %s" % str(f)
+    
+    objs = self.BuildFiles(src_files, expandedDependencyList)
+    self.AppendDependenciesLFlags(expandedDependencyList)
     prog = self.Program(name, objs)
-    for dep in dependencies:
-        self.Depends(prog, self.KAlias("@"+dep))
-    self.KAlias("@"+name, prog)
+    progAlias =self.KAlias("@"+name, prog)
+    for dep in expandedDependencyList:
+        self.Depends(progAlias, self.KAlias("@"+dep))
+    
     return prog
     
 def KStaticLibrary(self, name,  src_files, dependencies):
-    objs = self.BuildFiles(src_files, dependencies)
-    self.AppendDependenciesLFlags(dependencies) 
+    expandedDependencyList = []
+    self.ExpandDependencies( dependencies, expandedDependencyList)    
+    if self.GetOption("print-component-dependencies"): 
+        print "lib: %s \t\tdep: %s" % (name,expandedDependencyList)
+        for f in src_files:
+            print "src: %s" % str(f)
+    objs = self.BuildFiles(src_files, expandedDependencyList)
+    self.AppendDependenciesLFlags(expandedDependencyList) 
     lib = self.StaticLibrary(name, objs)
-    for dep in dependencies:
-        self.Depends(lib, self.KAlias("@"+dep))
-    self.KAlias("@"+name, lib)
+    staticLibAlias = self.KAlias("@"+name, lib)
+    for dep in expandedDependencyList:
+        self.Depends(staticLibAlias, self.KAlias("@"+dep))
+    
     return lib
 
 

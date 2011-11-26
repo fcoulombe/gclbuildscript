@@ -46,28 +46,36 @@ def AddComponent(self, name, incpath, lib, dependencies, cflagsSetter=DefaultCFl
         print "we're adding a component twice?"
     
     
-def ExpandDependencies(dependencies, expandedDependencyList):
+def ExpandDependencies(self, dependencies, expandedDependencyList):
     global componentList
     for dep in dependencies:
-        ExpandDependencies(componentList[dep].dependencies, expandedDependencyList)
+        self.ExpandDependencies(componentList[dep].dependencies, expandedDependencyList)
         expandedDependencyList.insert(0,dep)
     
     
 def AppendDependenciesCFlags(self, dependencies):
-    expandedDependencyList = []
-    ExpandDependencies(dependencies, expandedDependencyList)    
-    for dep in expandedDependencyList:
+    global componentList
+    for dep in dependencies:
         if componentList[dep].incpath:
+            if self.GetOption("print-component-dependencies"): 
+                for c in componentList[dep].incpath:
+                    print "adding cpppath: %s" % (str(c))
             self.Append(CPPPATH=componentList[dep].incpath)
+            self.Append(CXXPATH=componentList[dep].incpath)
+            self.Append(CPATH=componentList[dep].incpath)
         else:
             componentList[dep].CFlagsSetter(self)   
     
 def AppendDependenciesLFlags(self, dependencies):
-    expandedDependencyList = []
-    ExpandDependencies(dependencies, expandedDependencyList)    
-    for dep in expandedDependencyList:
+    global componentList
+    for dep in dependencies:
         if componentList[dep].lib:
-            self.Prepend(LINKFLAGS=componentList[dep].lib)
+            
+            self.Append(LIBS=componentList[dep].lib)
+            #self.Append(LINKFLAGS=componentList[dep].lib)
+            if self.GetOption("print-component-dependencies"): 
+                for c in componentList[dep].lib:
+                    print "adding linkflag: %s" % (str(c))
         else:
             componentList[dep].LFlagsSetter(self)      
     
@@ -76,6 +84,7 @@ def generate(env, *args, **kw):
     env.AddMethod(AddComponent)
     env.AddMethod(AppendDependenciesCFlags)
     env.AddMethod(AppendDependenciesLFlags)
+    env.AddMethod(ExpandDependencies)
 
 
 def exists():
