@@ -24,75 +24,10 @@ import os.path
 import SCons.Builder
 import subprocess
 
-
-valgrindExe = ['/usr/local/bin/valgrind --leak-check=full --dsymutil=yes --quiet  --show-reachable=yes ']
-extraValgrindOptions = ""
-
-     
-
-def builder_unit_test_with_valgrind(target, source, env):
-    suppressionFiles = [env.File('#tools/GCL_test.supp') , 
-                        env.File('#tools/helloworld.supp') ,
-                        env.File('#tools/SDL.supp') ,
-                         ]
-
-    app = str(source[0].abspath)
-    cwd = os.getcwd()
-    print "[Valgrind TEST]: %s" % app
-    cmdLine = [valgrindExe + suppressionString + app]
-    print cmdLine
-    p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
-    stdout, stderr  = p.communicate()
-    if  stderr and len(stderr) != 0:
-        print stderr
-        return 1
-    if p.returncode != 0:
-        print stderr
-        return 1
-    open(str(target[0]),'w').write("PASSED\n")
-    return 0
-    
-
-def builder_unit_test(target, source, env):
-    app = str(source[0].abspath)
-    cwd = os.getcwd()
-    print "[TEST]: %s" % app
-    cmdLine = [app]
-    
-    p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
-    stdout, stderr  = p.communicate()
-    #print stdout
-    #print stderr
-    if  stderr and len(stderr) != 0:
-        print stderr
-        return 1
-    if p.returncode != 0:
-        print stderr
-        return 1
-    open(str(target[0]),'w').write("PASSED\n")
-    return 0
-    
-
-def builder_rsync(target, source, env):
-    for t in target:
-        rsync = "/usr/bin/rsync --times --force --recursive --update --delete --progress"
-        print "%s  %s %s" % (rsync, t.srcnode().abspath, os.path.dirname(t.abspath))
-        os.system("%s  %s %s" % (rsync, t.srcnode().abspath, os.path.dirname(t.abspath)))
-    return 0
-
 def BuildFiles(self, src_files, dependencies):
     self.AppendDependenciesCFlags(dependencies)
     objs = self.Object(src_files)
     return objs
-    
-def UnitTest(self, name, src_files, dependencies, data):
-    prog = self.KProgram(name, src_files, dependencies)
-    rsyncedData = self.RSync(data, None)
-    self.AlwaysBuild(rsyncedData)
-    self.Depends(prog, rsyncedData)
-    self.Test(name+".passed", prog)
-    self.KAlias(name+"_run", name+".passed")
-    self.KAlias("@run_all", self.KAlias(name+"_run"))
     
 def KProgram(self, name, src_files, dependencies):
     objs = self.BuildFiles(src_files, dependencies)
@@ -131,22 +66,8 @@ def generate(env, *args, **kw):
     env.AddMethod(KStaticLibrary)
     env.AddMethod(KAlias)
     env.AddMethod(displayAliases)
-    env.AddMethod(UnitTest)
     env.AddMethod(BuildFiles)
     
-    # Create a builder for tests
-    bld = None
-    if env.GetOption('useValgrind'):
-        for s in suppressionFiles:
-            extraValgrindOptions += " --suppressions=" + "".join(s.abspath)
-        bld = env.Builder(action = builder_unit_test_with_valgrind)
-    else:
-        bld = env.Builder(action = builder_unit_test)
-    env.Append(BUILDERS = {'Test' :  bld})
-
-    # Create a builder for RSync
-    rsyncBld = env.Builder(action = builder_rsync)
-    env.Append(BUILDERS = {'RSync' :  rsyncBld})
 
 def exists():
     print "we exists"
