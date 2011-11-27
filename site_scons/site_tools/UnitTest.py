@@ -81,6 +81,7 @@ def UnitTest(self, name, src_files, dependencies, data):
     self.AlwaysBuild(rsyncedData)
     self.Depends(prog, rsyncedData)
     
+    self.KAlias("@build_all", prog)
     self.Test(name+".passed", prog)
     self.KAlias(name+"_run", name+".passed")
     self.KAlias("@run_all", self.KAlias(name+"_run"))

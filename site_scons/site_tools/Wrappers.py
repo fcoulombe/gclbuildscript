@@ -44,6 +44,7 @@ def KProgram(self, name, src_files, dependencies):
     for dep in expandedDependencyList:
         self.Depends(progAlias, self.KAlias("@"+dep))
     
+    self.KAlias("@build_all", prog)
     return prog
     
 def KStaticLibrary(self, name,  src_files, dependencies):
@@ -60,13 +61,14 @@ def KStaticLibrary(self, name,  src_files, dependencies):
     for dep in expandedDependencyList:
         self.Depends(staticLibAlias, self.KAlias("@"+dep))
     
+    self.KAlias("@build_all", lib)
     return lib
 
 
 aliasSet = []
 def displayAliases(self):
     print "ALIASES"
-    for a in list(set(aliasSet)):
+    for a in sorted(list(set(aliasSet))):
         print a
     
 def KAlias(self, alias, targets=None):
