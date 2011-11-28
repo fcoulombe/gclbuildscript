@@ -18,36 +18,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # 
-
-def DefaultCFlagsSetter(env):
-    return
-    
-def DefaultLFlagsSetter(env):
-    return
-
-class Component(object):
-    def __init__(self, name, incpath, lib, dependencies, cflagsSetter=DefaultCFlagsSetter, lflagsSetter=DefaultLFlagsSetter):
-        self.name = name
-        self.incpath = incpath
-        self.lib = lib
-        self.dependencies = dependencies
-        self.CFlagsSetter = cflagsSetter
-        self.LFlagsSetter = lflagsSetter
-        #self.libpath = libpath
+from Component import DefaultCFlagsSetter
+from Component import DefaultLFlagsSetter
+from Component import Component
         
 componentList = dict()
     
-def AddComponent(self, name, incpath, lib, dependencies, cflagsSetter=DefaultCFlagsSetter, lflagsSetter=DefaultLFlagsSetter):
+def AddComponent(self, name, cflags, incpath, lib, dependencies, cflagsSetter=DefaultCFlagsSetter, lflagsSetter=DefaultLFlagsSetter):
     global componentList
-    if not componentList.has_key(name):
-        newComponent = Component(name, incpath, lib, dependencies, cflagsSetter, lflagsSetter)
-        componentList[name] = newComponent
+    comp = Component()
+    comp.name = name
+    comp.cflags = cflags
+    comp.incpath = incpath
+    comp.lib = lib
+    comp.dependencies = dependencies
+    comp.CFlagsSetter = cflagsSetter
+    comp.LFlagsSetter = lflagsSetter
+    
+    if not componentList.has_key(comp.name):
+        componentList[comp.name] = comp
     else:
         print "we're adding a component twice?"
     
     
 def ExpandDependencies(self, dependencies, expandedDependencyList):
     global componentList
+    
     for dep in dependencies:
         self.ExpandDependencies(componentList[dep].dependencies, expandedDependencyList)
         expandedDependencyList.insert(0,dep)
@@ -56,23 +52,31 @@ def ExpandDependencies(self, dependencies, expandedDependencyList):
 def AppendDependenciesCFlags(self, dependencies):
     global componentList
     for dep in dependencies:
-        if componentList[dep].incpath:
+        if componentList[dep].CFlagsSetter == DefaultCFlagsSetter:
             if self.GetOption("print-component-dependencies"): 
                 for c in componentList[dep].incpath:
                     print "adding cpppath: %s" % (str(c))
-            self.Append(CPPPATH=componentList[dep].incpath)
-            self.Append(CXXPATH=componentList[dep].incpath)
-            self.Append(CPATH=componentList[dep].incpath)
+            
+            
+            incpath = componentList[dep].incpath
+            if incpath:
+                self.Append(CPPPATH=incpath)
+                self.Append(CXXPATH=incpath)
+                self.Append(CPATH=incpath)
+                
+            cflags = componentList[dep].cflags
+            if cflags:
+                self.Append(CPPFLAGS=cflags)
+                self.Append(CXXFLAGS=cflags)
+                self.Append(CFLAGS=cflags)
         else:
             componentList[dep].CFlagsSetter(self)   
     
 def AppendDependenciesLFlags(self, dependencies):
     global componentList
     for dep in dependencies:
-        if componentList[dep].lib:
-            
+        if componentList[dep].LFlagsSetter == DefaultLFlagsSetter:
             self.Append(LIBS=componentList[dep].lib)
-            #self.Append(LINKFLAGS=componentList[dep].lib)
             if self.GetOption("print-component-dependencies"): 
                 for c in componentList[dep].lib:
                     print "adding linkflag: %s" % (str(c))
