@@ -60,15 +60,15 @@ def AppendDependenciesCFlags(self, dependencies):
             
             incpath = componentList[dep].incpath
             if incpath:
-                self.Append(CPPPATH=incpath)
-                self.Append(CXXPATH=incpath)
-                self.Append(CPATH=incpath)
+                self.AppendUnique(CPPPATH=incpath)
+                self.AppendUnique(CXXPATH=incpath)
+                self.AppendUnique(CPATH=incpath)
                 
             cflags = componentList[dep].cflags
             if cflags:
-                self.Append(CPPFLAGS=cflags)
-                self.Append(CXXFLAGS=cflags)
-                self.Append(CFLAGS=cflags)
+                self.AppendUnique(CPPFLAGS=cflags)
+                self.AppendUnique(CXXFLAGS=cflags)
+                self.AppendUnique(CFLAGS=cflags)
         else:
             componentList[dep].CFlagsSetter(self)   
     
@@ -76,7 +76,7 @@ def AppendDependenciesLFlags(self, dependencies):
     global componentList
     for dep in dependencies:
         if componentList[dep].LFlagsSetter == DefaultLFlagsSetter:
-            self.Append(LIBS=componentList[dep].lib)
+            self.AppendUnique(LIBS=componentList[dep].lib)
             if self.GetOption("print-component-dependencies"): 
                 for c in componentList[dep].lib:
                     print "adding linkflag: %s" % (str(c))
