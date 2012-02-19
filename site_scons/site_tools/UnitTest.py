@@ -77,8 +77,8 @@ def string_it(target, source, env):
    
 def UnitTest(self, name, src_files, dependencies, data):
     prog = self.KProgram(name, src_files, dependencies)
-    rsyncedData = self.RSync(data, None)
-    self.AlwaysBuild(rsyncedData)
+    rsyncedData = self.Data(data)
+    #self.AlwaysBuild(rsyncedData)
     self.Depends(prog, rsyncedData)
     
     self.KAlias("@build_all", prog)

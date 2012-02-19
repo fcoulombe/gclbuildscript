@@ -32,6 +32,9 @@ import RunProgram
 def builder_rsync(target, source, env):
 
     for t in target:
+        #create folder if it doesn't exists
+        if not os.path.exists(t.abspath):
+            RunProgram.RunProgram("mkdir -p %s" % t.abspath)
         rsync = "/usr/bin/rsync --times --force --recursive --update --delete --progress"
         cmdLine = "%s  %s %s" % (rsync, t.srcnode().abspath, os.path.dirname(t.abspath)) 
         #print  cmdLine

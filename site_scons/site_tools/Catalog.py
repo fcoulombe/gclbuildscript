@@ -76,7 +76,7 @@ def AppendDependenciesLFlags(self, dependencies):
     global componentList
     for dep in dependencies:
         if componentList[dep].LFlagsSetter == DefaultLFlagsSetter:
-            self.AppendUnique(LIBS=componentList[dep].lib)
+            self.Append(LIBS=componentList[dep].lib)
             if self.GetOption("print-component-dependencies"): 
                 for c in componentList[dep].lib:
                     print "adding linkflag: %s" % (str(c))
