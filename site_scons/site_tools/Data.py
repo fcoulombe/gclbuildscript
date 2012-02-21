@@ -144,6 +144,7 @@ def builder_sprite(target, source, env):
         textures = rootChildren[1]
         textureCount = len(textures.getchildren())
         textureList = []
+        #here we should probably check that all textures are the same size
         for tex in textures.getchildren():
             textureFilename = tex.get("filename")
             textureList.append(textureFilename)
