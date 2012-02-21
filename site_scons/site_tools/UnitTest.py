@@ -77,15 +77,19 @@ def string_it(target, source, env):
    
 def UnitTest(self, name, src_files, dependencies, data):
     prog = self.KProgram(name, src_files, dependencies)
-    rsyncedData = self.Data(data)
-    #self.AlwaysBuild(rsyncedData)
-    self.Depends(prog, rsyncedData)
+    processedData = self.Data(data)
+    #self.AlwaysBuild(processedData)
+    #self.Depends(prog, processedData)
+    
+    passed = self.File(name+".passed")
+    tested = self.Test(passed, prog)
+    self.Depends(tested, processedData)
+    
+    self.AlwaysBuild(tested)
     
     self.KAlias("@build_all", prog)
-    self.Test(name+".passed", prog)
-    self.KAlias(name+"_run", name+".passed")
-    self.KAlias("@run_all", self.KAlias(name+"_run"))
-
+    runAlias = self.KAlias(name+"_run", tested)
+    self.KAlias("@run_all", runAlias)
     
 def generate(env, *args, **kw):
     global extraValgrindOptions
