@@ -186,6 +186,7 @@ def Data(self, target):
         if not os.path.exists(dataPath):
             continue
         textureTgtList = self.Texture(self.Dir(str(t)+"/Texture"))
+        self.AlwaysBuild(textureTgtList);
         self.KAlias("@build_texture", textureTgtList)
         materialTgtList = self.Material(self.Dir(str(t)+"/Material"))
         self.KAlias("@build_material", materialTgtList)
