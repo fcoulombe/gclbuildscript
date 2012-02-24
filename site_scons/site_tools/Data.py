@@ -66,6 +66,19 @@ def Texture(self, target):
     #    tgtList.extend(self.bTexture(self.File("%s/%s" % (str(target),d))))
     return tgtList
 
+def Sound(self, target):
+    t = target.srcnode().abspath
+    
+    tgtList = []
+    if not os.path.exists(t):
+        return tgtList
+        
+    dirList = os.listdir(str(t))
+    tgtList = self.RSync(target, None)
+    #for d in dirList:
+    #    tgtList.extend(self.bTexture(self.File("%s/%s" % (str(target),d))))
+    return tgtList
+
 def builder_material(target, source, env):
     for t in target:
         rsync = "/usr/bin/rsync --times --force --recursive --update --delete --progress"
@@ -188,6 +201,11 @@ def Data(self, target):
         textureTgtList = self.Texture(self.Dir(str(t)+"/Texture"))
         self.AlwaysBuild(textureTgtList);
         self.KAlias("@build_texture", textureTgtList)
+        
+        soundTgtList = self.Sound(self.Dir(str(t)+"/Sound"))
+        self.AlwaysBuild(soundTgtList);
+        self.KAlias("@build_sound", soundTgtList)
+        
         materialTgtList = self.Material(self.Dir(str(t)+"/Material"))
         self.KAlias("@build_material", materialTgtList)
         meshTgtList = self.Mesh(self.Dir(str(t)+"/Mesh"))
@@ -195,6 +213,7 @@ def Data(self, target):
         spriteTgtList = self.Sprite(self.Dir(str(t)+"/Sprite"))
         self.KAlias("@build_sprite", spriteTgtList)
         tgtList = textureTgtList
+        tgtList.extend( soundTgtList)
         tgtList.extend( materialTgtList)
         tgtList.extend( meshTgtList )
         tgtList.extend( spriteTgtList )
@@ -207,6 +226,9 @@ def generate(env, *args, **kw):
     # Create a builders for Data
     textureBld =Builder(action = Action(builder_copy, cmdstr='[texture] $TARGET'), suffix='.tex') #,  src_suffix='.x'
     env.Append(BUILDERS = {'bTexture' :  textureBld})
+
+    soundBld =Builder(action = Action(builder_copy, cmdstr='[sound] $TARGET'), suffix='.tex') #,  src_suffix='.x'
+    env.Append(BUILDERS = {'bSound' :  soundBld})
     
     materialBld =Builder(action = Action(builder_copy, cmdstr='[material] $TARGET'), suffix='.mat')
     env.Append(BUILDERS = {'bMaterial' :  materialBld})
@@ -219,6 +241,7 @@ def generate(env, *args, **kw):
     
     env.AddMethod(Data)
     env.AddMethod(Texture)
+    env.AddMethod(Sound)
     env.AddMethod(Material)
     env.AddMethod(Mesh)
     env.AddMethod(Sprite)
