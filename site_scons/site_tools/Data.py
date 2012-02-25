@@ -33,7 +33,7 @@ def builder_copy(target, source, env):
         rsync = "/usr/bin/rsync --times --force --recursive --update --delete --progress"
         cmdLine = "%s  %s %s" % (rsync, source[0].abspath, t.abspath) 
         #print  cmdLine
-        stdout, stderr = RunProgram.RunProgram(cmdLine)
+        stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
         
         if stderr and len(stderr):
             print stderr
@@ -46,7 +46,7 @@ def builder_texture(target, source, env):
         rsync = "/usr/bin/rsync --times --force --recursive --update --delete --progress"
         cmdLine = "%s  %s %s" % (rsync, source[0].abspath, t.abspath) 
         #print  cmdLine
-        stdout, stderr = RunProgram.RunProgram(cmdLine)
+        stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
         
         if stderr and len(stderr):
             print stderr
@@ -84,7 +84,7 @@ def builder_material(target, source, env):
         rsync = "/usr/bin/rsync --times --force --recursive --update --delete --progress"
         cmdLine = "%s  %s %s" % (rsync, source[0].abspath, t.abspath+source[0].abspath[-9:]) 
         #print  cmdLine
-        stdout, stderr = RunProgram.RunProgram(cmdLine)
+        stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
         
         if stderr and len(stderr):
             print stderr
@@ -110,12 +110,15 @@ def builder_mesh(target, source, env):
     
     cmdLine = "%s  %s %s" % (MeshConverterExe, source[0].abspath, target[0].abspath) 
     print  cmdLine
-    stdout, stderr = RunProgram.RunProgram(cmdLine)
+    stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
         
     print stdout
     if stderr and len(stderr):
         print stderr
         return -1
+    if returncode != 0:
+        return 1
+    
     return 0
 
 def Mesh(self, target):
@@ -139,7 +142,7 @@ def builder_sprite_old(target, source, env):
         rsync = "/usr/bin/rsync --times --force --recursive --update --delete --progress"
         cmdLine = "%s  %s %s" % (rsync, t.srcnode().abspath, os.path.dirname(t.abspath)) 
         #print  cmdLine
-        stdout, stderr = RunProgram.RunProgram(cmdLine)
+        stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
         
         if stderr and len(stderr):
             print stderr

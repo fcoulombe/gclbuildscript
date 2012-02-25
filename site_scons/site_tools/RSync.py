@@ -39,7 +39,7 @@ def builder_rsync(target, source, env):
         rsync = "/usr/bin/rsync --times --force --recursive --update --delete --progress"
         cmdLine = "%s  %s %s" % (rsync, source[0].abspath, os.path.dirname(target[0].abspath)) 
         #print  cmdLine
-        stdout, stderr = RunProgram.RunProgram(cmdLine)
+        stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
             
         if stderr and len(stderr):
             print stderr
@@ -52,7 +52,7 @@ def builder_rsync(target, source, env):
             rsync = "/usr/bin/rsync --times --force --recursive --update --delete --progress"
             cmdLine = "%s  %s %s" % (rsync, t.srcnode().abspath, os.path.dirname(t.abspath)) 
             #print  cmdLine
-            stdout, stderr = RunProgram.RunProgram(cmdLine)
+            stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
             
             if stderr and len(stderr):
                 print stderr

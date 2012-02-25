@@ -25,4 +25,4 @@ def RunProgram(cmdLine):
     p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     stdout, stderr = p.communicate()
     retval = p.wait()
-    return stdout, stderr
+    return stdout, stderr, p.returncode
