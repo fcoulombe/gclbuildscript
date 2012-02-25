@@ -90,6 +90,7 @@ def UnitTest(self, name, src_files, dependencies, data):
     self.KAlias("@build_all", prog)
     runAlias = self.KAlias(name+"_run", tested)
     self.KAlias("@run_all", runAlias)
+    return prog
     
 def generate(env, *args, **kw):
     global extraValgrindOptions
