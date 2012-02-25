@@ -104,19 +104,22 @@ def Material(self, target):
         tgtList.extend(self.bMaterial(self.File("%s/%s" % (str(target),d))))
     return tgtList
     
+    
 def builder_mesh(target, source, env):
-    for t in target:
-        rsync = "/usr/bin/rsync --times --force --recursive --update --delete --progress"
-        cmdLine = "%s  %s %s" % (rsync, t.srcnode().abspath, os.path.dirname(t.abspath)) 
-        #print  cmdLine
-        stdout, stderr = RunProgram.RunProgram(cmdLine)
+    MeshConverterExe = env.File("build/gcc-i686-32bit-debug/program/tools/meshconverter/meshconverter").abspath
+    
+    cmdLine = "%s  %s %s" % (MeshConverterExe, source[0].abspath, target[0].abspath) 
+    print  cmdLine
+    stdout, stderr = RunProgram.RunProgram(cmdLine)
         
-        if stderr and len(stderr):
-            print stderr
-            return -1
+    print stdout
+    if stderr and len(stderr):
+        print stderr
+        return -1
     return 0
 
 def Mesh(self, target):
+    
     t = target.srcnode().abspath
     
     tgtList = []
@@ -127,6 +130,7 @@ def Mesh(self, target):
     
     for d in dirList:
         tgtList.extend(self.bMesh(self.File("%s/%s" % (str(target),d))))
+    self.Depends(tgtList, self.Alias("@meshconverter"))
     return tgtList
     
 
@@ -233,7 +237,7 @@ def generate(env, *args, **kw):
     materialBld =Builder(action = Action(builder_copy, cmdstr='[material] $TARGET'), suffix='.mat')
     env.Append(BUILDERS = {'bMaterial' :  materialBld})
     
-    meshBld =Builder(action = Action(builder_copy, cmdstr='[mesh] $TARGET'), suffix='.mesh')
+    meshBld =Builder(action = Action(builder_mesh, cmdstr='[mesh] $TARGET'), suffix='.mesh', src_suffix='.fbx')
     env.Append(BUILDERS = {'bMesh' :  meshBld})
     
     spriteBld =Builder(action = Action(builder_sprite, cmdstr='[sprite] $TARGET'), suffix='.spr')
