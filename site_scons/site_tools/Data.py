@@ -135,6 +135,35 @@ def Mesh(self, target):
         tgtList.extend(self.bMesh(self.File("%s/%s" % (str(target),d))))
     self.Depends(tgtList, self.Alias("@meshconverter"))
     return tgtList
+
+def builder_music(target, source, env):
+    
+    cmdLine = "mpg321 %s -w - | oggenc -o %s -" % (source[0].abspath, target[0].abspath) 
+    print  cmdLine
+    stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
+        
+    print stdout
+    if stderr and len(stderr):
+        print stderr
+        return -1
+    if returncode != 0:
+        return 1
+    
+    return 0
+
+def Music(self, target):
+    
+    t = target.srcnode().abspath
+    
+    tgtList = []
+    if not os.path.exists(t):
+        return tgtList
+        
+    dirList = os.listdir(str(t))
+    
+    for d in dirList:
+        tgtList.extend(self.bMusic(self.File("%s/%s" % (str(target),d))))
+    return tgtList
     
 
 def builder_sprite_old(target, source, env):
@@ -219,11 +248,14 @@ def Data(self, target):
         self.KAlias("@build_mesh", meshTgtList)
         spriteTgtList = self.Sprite(self.Dir(str(t)+"/Sprite"))
         self.KAlias("@build_sprite", spriteTgtList)
+        musicTgtList = self.Music(self.Dir(str(t)+"/Music"))
+        self.KAlias("@build_music", musicTgtList)
         tgtList = textureTgtList
         tgtList.extend( soundTgtList)
         tgtList.extend( materialTgtList)
         tgtList.extend( meshTgtList )
         tgtList.extend( spriteTgtList )
+        tgtList.extend( musicTgtList )
     self.KAlias("@build_data", tgtList)
     self.KAlias("@build_all", tgtList)
     
@@ -243,6 +275,10 @@ def generate(env, *args, **kw):
     meshBld =Builder(action = Action(builder_mesh, cmdstr='[mesh] $TARGET'), suffix='.mesh', src_suffix='.fbx')
     env.Append(BUILDERS = {'bMesh' :  meshBld})
     
+    musicBld =Builder(action = Action(builder_music, cmdstr='[music] $TARGET'), suffix='.ogg', src_suffix='.mp3')
+    env.Append(BUILDERS = {'bMusic' :  musicBld})
+    
+    
     spriteBld =Builder(action = Action(builder_sprite, cmdstr='[sprite] $TARGET'), suffix='.spr')
     env.Append(BUILDERS = {'bSprite' :  spriteBld})
     
@@ -251,6 +287,7 @@ def generate(env, *args, **kw):
     env.AddMethod(Sound)
     env.AddMethod(Material)
     env.AddMethod(Mesh)
+    env.AddMethod(Music)
     env.AddMethod(Sprite)
 
 def exists():
