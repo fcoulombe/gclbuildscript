@@ -25,31 +25,44 @@ import SCons.Builder
 import subprocess
 from SCons.Builder import Builder
 from SCons.Action import Action
+import re
 
-valgrindExe = ['/usr/local/bin/valgrind --leak-check=full --dsymutil=yes --quiet  --show-reachable=yes ']
+valgrindExe = '/usr/bin/valgrind --leak-check=full --dsymutil=yes --quiet '
 extraValgrindOptions = ""
      
 
 def builder_unit_test_with_valgrind(target, source, env):
     global extraValgrindOptions
-    print "[valgrind test] %s " % str(target)
-
+    print "[valgrind test] %s " % str(target[0])
 
     app = str(source[0].abspath)
     cwd = os.getcwd()
-    cmdLine = [valgrindExe + extraValgrindOptions + app]
+    cmdLine = [valgrindExe + extraValgrindOptions + " " + app]
     print cmdLine
     p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
     stdout, stderr  = p.communicate()
-    if  stderr and len(stderr) != 0:
-        print stderr
+    #print stdout
+    #print stderr
+    if  stdout and len(stdout) != 0:
+        print stdout.strip()
+    if  stderr and len(stdout) != 0:
+        errList = stderr.strip().split('\n')
+        for err in errList:
+            m = re.search("(^.*by.*\()(.*\)$)", err)
+            if m!=None:
+                reorganizedString = m.group(2).replace(")", "") + ":0: " + m.group(1)
+                print re.sub("==\d+==", "", reorganizedString)
+                #print err
+            else:
+                print err
+        #print re.sub("==\d+==", "", stderr.strip())
+        #print stderr.strip().replace("==", " ")
         return 1
     if p.returncode != 0:
         print stderr
         return 1
     open(str(target[0]),'w').write("PASSED\n")
     return 0
-    
 
 def builder_unit_test(target, source, env):
     #print "[test] %s " % str(source[0])
@@ -99,7 +112,10 @@ def generate(env, *args, **kw):
     # Create a builder for tests
     bld = None
     if env.GetOption('useValgrind'):
-        suppressionFiles = [env.File('#tools/GCL_test.supp') , 
+        extraValgrindOptions += "--fullpath-after="
+        extraValgrindOptions += env.Dir("#").abspath + "/ "
+        suppressionFiles = [#env.File('#tools/GCL_test.supp') , 
+                            env.File('#tools/renderer.supp')
                         #env.File('#tools/helloworld.supp') ,
                         #env.File('#tools/SDL.supp') ,
                          ]
