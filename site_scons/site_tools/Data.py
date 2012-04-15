@@ -106,7 +106,7 @@ def Material(self, target):
     
     
 def builder_mesh(target, source, env):
-    MeshConverterExe = env.File("build/gcc-i686-32bit-debug/program/tools/meshconverter/meshconverter").abspath
+    MeshConverterExe = env.File("build/"+env['BUILD_VARIANT']+"/program/tools/meshconverter/meshconverter").abspath
     
     cmdLine = "%s  %s %s" % (MeshConverterExe, source[0].abspath, target[0].abspath) 
     print  cmdLine
