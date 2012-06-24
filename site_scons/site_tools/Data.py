@@ -205,11 +205,11 @@ def builder_sprite(target, source, env):
         #print "height: %d" % int(height)
         #print "frameCount: %d" % int(frameCount)
         #print "textureCount: %d" % int(textureCount)
-        
-        binaryData = struct.pack("HHLL", int(width), int(height), int(frameCount), int(textureCount))
+        pad = 0 #pad to 64bits
+        binaryData = struct.pack("HHIII", int(width), int(height), int(frameCount), int(textureCount), int(pad))
         f.write(binaryData)
         for tex in textureList:
-            f.write(struct.pack("L", len(tex)))
+            f.write(struct.pack("I", len(tex)))
             f.write(tex)
             f.write("\0")
         f.close()
