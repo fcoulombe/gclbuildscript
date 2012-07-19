@@ -41,8 +41,6 @@ def builder_unit_test_with_valgrind(target, source, env):
     print cmdLine
     p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
     stdout, stderr  = p.communicate()
-    #print stdout
-    #print stderr
     if  stdout and len(stdout) != 0:
         print stdout.strip()
     if  stderr and len(stdout) != 0:
@@ -72,8 +70,6 @@ def builder_unit_test(target, source, env):
     
     p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
     stdout, stderr  = p.communicate()
-    #print stdout
-    #print stderr
     if  stdout and len(stdout) != 0:
         print stdout.strip()
     if  stderr and len(stdout) != 0:
