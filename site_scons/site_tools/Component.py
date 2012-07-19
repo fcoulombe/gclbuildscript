@@ -35,6 +35,7 @@ class Component(object):
         self.dependencies = ""
         self.CFlagsSetter = DefaultCFlagsSetter
         self.LFlagsSetter = DefaultLFlagsSetter
+        self.dllDependency = []
         #self.libpath = libpath
         
         

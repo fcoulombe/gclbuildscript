@@ -40,6 +40,7 @@ def KProgram(self, name, src_files, dependencies):
     objs = self.BuildFiles(src_files, expandedDependencyList)
     self.AppendDependenciesLFlags(expandedDependencyList)
     prog = self.Program(name, objs)
+    self.CopyDllDepencency(prog, expandedDependencyList)
     progAlias =self.KAlias("@"+name, prog)
     for dep in expandedDependencyList:
         self.Depends(progAlias, self.KAlias("@"+dep))

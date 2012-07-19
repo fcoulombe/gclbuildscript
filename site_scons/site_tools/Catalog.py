@@ -21,10 +21,11 @@
 from Component import DefaultCFlagsSetter
 from Component import DefaultLFlagsSetter
 from Component import Component
+import os.path
         
 componentList = dict()
     
-def AddComponent(self, name, cflags, incpath, lib, dependencies, cflagsSetter=DefaultCFlagsSetter, lflagsSetter=DefaultLFlagsSetter):
+def AddComponent(self, name, cflags, incpath, lib, dependencies, cflagsSetter=DefaultCFlagsSetter, lflagsSetter=DefaultLFlagsSetter, dllDep=[]):
     global componentList
     comp = Component()
     comp.name = name
@@ -34,6 +35,7 @@ def AddComponent(self, name, cflags, incpath, lib, dependencies, cflagsSetter=De
     comp.dependencies = dependencies
     comp.CFlagsSetter = cflagsSetter
     comp.LFlagsSetter = lflagsSetter
+    comp.dllDependency = dllDep
     
     if not componentList.has_key(comp.name):
         componentList[comp.name] = comp
@@ -83,12 +85,21 @@ def AppendDependenciesLFlags(self, dependencies):
         else:
             componentList[dep].LFlagsSetter(self)      
     
-
+def CopyDllDepencency(self, prog, dependencies):
+    global componentList
+    progPath = os.path.dirname(self.File(prog[0]).abspath)
+    for dep in dependencies:
+        if len(componentList[dep].dllDependency):
+            for dllDep in componentList[dep].dllDependency:
+                t = self.Install(progPath, dllDep)
+                self.Depends(prog, t)
+                 
 def generate(env, *args, **kw):
     env.AddMethod(AddComponent)
     env.AddMethod(AppendDependenciesCFlags)
     env.AddMethod(AppendDependenciesLFlags)
     env.AddMethod(ExpandDependencies)
+    env.AddMethod(CopyDllDepencency)
 
 
 def exists():
