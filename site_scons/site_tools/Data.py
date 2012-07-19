@@ -137,8 +137,12 @@ def Mesh(self, target):
     return tgtList
 
 def builder_music(target, source, env):
-    
-    cmdLine = "mpg321 %s -w - | oggenc -o %s -" % (source[0].abspath, target[0].abspath) 
+    if env['PLATFORM'] == 'win32':
+        lameExe = env.File("#3rdParty/lame/lame.exe").abspath
+        oggEncExe = env.File("#3rdParty/ogg/oggenc2.exe").abspath
+        cmdLine = "%s --decode %s - | %s -o %s -" % (lameExe, source[0].abspath, oggEncExe, target[0].abspath) 
+    else:
+        cmdLine = "mpg321 %s -w - | oggenc -o %s -" % (source[0].abspath, target[0].abspath) 
     print  cmdLine
     stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
         
