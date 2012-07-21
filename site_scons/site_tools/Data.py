@@ -66,6 +66,31 @@ def Texture(self, target):
     #    tgtList.extend(self.bTexture(self.File("%s/%s" % (str(target),d))))
     return tgtList
 
+def builder_font(target, source, env):
+    for t in target:
+        rsync = "/usr/bin/rsync --times --force --recursive --update --delete --progress"
+        cmdLine = "%s  %s %s" % (rsync, source[0].abspath, t.abspath) 
+        #print  cmdLine
+        stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
+        
+        if stderr and len(stderr):
+            print stderr
+            return -1
+    return 0
+
+def Font(self, target):
+    t = target.srcnode().abspath
+    
+    tgtList = []
+    if not os.path.exists(t):
+        return tgtList
+        
+    dirList = os.listdir(str(t))
+    tgtList = self.RSync(target, None)
+    #for d in dirList:
+    #    tgtList.extend(self.bTexture(self.File("%s/%s" % (str(target),d))))
+    return tgtList
+
 def Sound(self, target):
     t = target.srcnode().abspath
     
@@ -254,12 +279,15 @@ def Data(self, target):
         self.KAlias("@build_sprite", spriteTgtList)
         musicTgtList = self.Music(self.Dir(str(t)+"/Music"))
         self.KAlias("@build_music", musicTgtList)
+        fontTgtList = self.Font(self.Dir(str(t)+"/Font"))
+        self.KAlias("@build_font", fontTgtList)
         tgtList = textureTgtList
         tgtList.extend( soundTgtList)
         tgtList.extend( materialTgtList)
         tgtList.extend( meshTgtList )
         tgtList.extend( spriteTgtList )
         tgtList.extend( musicTgtList )
+        tgtList.extend( fontTgtList )
     self.KAlias("@build_data", tgtList)
     self.KAlias("@build_all", tgtList)
     
@@ -282,6 +310,9 @@ def generate(env, *args, **kw):
     musicBld =Builder(action = Action(builder_music, cmdstr='[music] $TARGET'), suffix='.ogg', src_suffix='.mp3')
     env.Append(BUILDERS = {'bMusic' :  musicBld})
     
+    fontBld =Builder(action = Action(builder_copy, cmdstr='[font] $TARGET'), suffix='.ttf', src_suffix='.font')
+    env.Append(BUILDERS = {'bFont' :  fontBld})
+    
     
     spriteBld =Builder(action = Action(builder_sprite, cmdstr='[sprite] $TARGET'), suffix='.spr')
     env.Append(BUILDERS = {'bSprite' :  spriteBld})
@@ -292,6 +323,7 @@ def generate(env, *args, **kw):
     env.AddMethod(Material)
     env.AddMethod(Mesh)
     env.AddMethod(Music)
+    env.AddMethod(Font)
     env.AddMethod(Sprite)
 
 def exists():
