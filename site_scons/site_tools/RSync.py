@@ -51,7 +51,7 @@ def builder_robocopy(target, source, env):
                 RunProgram.RunProgram("mkdir -p %s" % t.abspath)
             rsync = rsyncExe 
             cmdLine = "%s  %s %s /mir" % (rsync, t.srcnode().abspath, t.abspath) 
-            print  cmdLine
+            #print  cmdLine
             stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
             if stderr and len(stderr):
                 print stderr
@@ -72,7 +72,7 @@ def builder_rsync(target, source, env):
             RunProgram.RunProgram("mkdir -p %s" % target[0].abspath)
         rsync = rsyncExe
         cmdLine = "%s  %s %s" % (rsync, source[0].abspath, os.path.dirname(target[0].abspath)) 
-        print  cmdLine
+        #print  cmdLine
         stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
         if returncode != 0:
             print "there was a problem with rsync"
@@ -88,7 +88,7 @@ def builder_rsync(target, source, env):
                 RunProgram.RunProgram("mkdir -p %s" % t.abspath)
             rsync = rsyncExe 
             cmdLine = "%s  %s %s" % (rsync, t.srcnode().abspath, os.path.dirname(t.abspath)) 
-            print  cmdLine
+            #print  cmdLine
             stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
             if returncode != 0:
                 print "there was a problem with rsync"
