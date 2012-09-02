@@ -134,7 +134,7 @@ def builder_mesh(target, source, env):
     MeshConverterExe = env.File("build/"+env['BUILD_VARIANT']+"/program/tools/meshconverter/meshconverter").abspath
     
     cmdLine = "%s  %s %s" % (MeshConverterExe, source[0].abspath, target[0].abspath) 
-    print  cmdLine
+    #print  cmdLine
     stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
         
     print stdout
@@ -168,10 +168,10 @@ def builder_music(target, source, env):
         cmdLine = "%s --decode %s - | %s -o %s -" % (lameExe, source[0].abspath, oggEncExe, target[0].abspath) 
     else:
         cmdLine = "mpg321 %s -w - | oggenc -o %s -" % (source[0].abspath, target[0].abspath) 
-    print  cmdLine
+    #print  cmdLine
     stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
         
-    print stdout
+    #print stdout
     if stderr and len(stderr):
         print stderr
         return -1
