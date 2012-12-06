@@ -29,15 +29,17 @@ import re
 
 valgrindExe = '/usr/bin/valgrind --leak-check=full --dsymutil=yes --quiet '
 extraValgrindOptions = ""
+testArguments = ""
      
 
 def builder_unit_test_with_valgrind(target, source, env):
     global extraValgrindOptions
+    global testArguments
     print "[valgrind test] %s " % str(target[0])
 
     app = str(source[0].abspath)
     cwd = os.getcwd()
-    cmdLine = [valgrindExe + extraValgrindOptions + " " + app]
+    cmdLine = [valgrindExe + extraValgrindOptions + " " + app + testArguments]
     print cmdLine
     p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
     stdout, stderr  = p.communicate()
@@ -63,10 +65,11 @@ def builder_unit_test_with_valgrind(target, source, env):
     return 0
 
 def builder_unit_test(target, source, env):
+    global testArguments
     #print "[test] %s " % str(source[0])
     app = str(source[0].abspath)
     cwd = os.getcwd()
-    cmdLine = [app]
+    cmdLine = [app+testArguments]
     
     p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
     stdout, stderr  = p.communicate()
@@ -103,6 +106,7 @@ def UnitTest(self, name, src_files, dependencies, data):
     
 def generate(env, *args, **kw):
     global extraValgrindOptions
+    global testArguments
     env.AddMethod(UnitTest)
     
     # Create a builder for tests
@@ -122,6 +126,7 @@ def generate(env, *args, **kw):
         bld = Builder(action = Action(builder_unit_test, cmdstr='[test] $SOURCE'))
     env.Append(BUILDERS = {'Test' :  bld})
 
-
+    if env.GetOption('isInteractiveTest'):
+        testArguments = " --interactive"
 def exists():
     print "we exists"
