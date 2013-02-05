@@ -36,7 +36,7 @@ def builder_robocopy(target, source, env):
     #if the user has specified a source. usually when rsyncing to install dir
     if source:
         if not os.path.exists(target[0].abspath):
-            RunProgram.RunProgram("mkdir -p %s" % target[0].abspath)
+            RunProgram.RunProgram("mkdir %s" % target[0].abspath)
         rsync = rsyncExe
         cmdLine = "%s  %s %s /mir" % (rsync, source[0].abspath, target[0].abspath) 
         print  cmdLine
@@ -48,7 +48,7 @@ def builder_robocopy(target, source, env):
         for t in target:
             #create folder if it doesn't exists
             if not os.path.exists(t.abspath):
-                RunProgram.RunProgram("mkdir -p %s" % t.abspath)
+                RunProgram.RunProgram("mkdir %s" % t.abspath)
             rsync = rsyncExe 
             cmdLine = "%s  %s %s /mir" % (rsync, t.srcnode().abspath, t.abspath) 
             #print  cmdLine
