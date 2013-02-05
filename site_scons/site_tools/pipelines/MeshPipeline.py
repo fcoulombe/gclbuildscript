@@ -36,10 +36,14 @@ class MeshPipeline(Pipeline.Pipeline):
         tgtList = []
         if not os.path.exists(t):
             return tgtList
-            
+        
+        matPath = os.path.dirname(target.abspath)+"/Material"
+        if not os.path.exists(matPath):
+            os.makedirs(matPath)
         dirList = os.listdir(str(t))  
-        for d in dirList:
-            tgtList.extend(env.MeshBuilder(env.File("%s/%s" % (str(target),d))))
+        for d in dirList:            
+            f = env.File("%s/%s" % (str(target),d))
+            tgtList.extend(env.MeshBuilder(f))
         env.Depends(tgtList, env.Alias("@meshconverter"))
         env.AlwaysBuild(tgtList);
         env.KAlias("@build_meshes", tgtList)
@@ -47,7 +51,7 @@ class MeshPipeline(Pipeline.Pipeline):
 
        
     def generate(seld, env):
-        bld =Builder(action = Action(builder_mesh, cmdstr='[mesh] $TARGET'), suffix='.mesh', src_suffix='.fbx')
+        bld =Builder(action = Action(builder_mesh, cmdstr='[mesh] $TARGET'), suffix='.mesh', src_suffix='.dae')
         env.Append(BUILDERS = {'MeshBuilder' :  bld})
       
 pipeline = MeshPipeline()
