@@ -10,11 +10,12 @@ pipelineName = "Music"
 def builder_music(target, source, env):
     if env['PLATFORM'] == 'win32':
         lameExe = env.File("#3rdParty/lame/lame.exe").abspath
-        oggEncExe = env.File("#3rdParty/ogg/oggenc2.exe").abspath
+        oggEncExe = env.File("#3rdParty/ogg/bin/oggenc.exe").abspath
         cmdLine = "%s --decode %s - | %s -o %s -" % (lameExe, source[0].abspath, oggEncExe, target[0].abspath) 
     else:
         cmdLine = "mpg321 %s -w - | oggenc -o %s -" % (source[0].abspath, target[0].abspath) 
-    #print  cmdLine
+    if env.GetOption('verbose'):
+        print  cmdLine
     stdout, stderr, returncode = RunProgram.RunProgram(cmdLine)
         
     #print stdout
@@ -22,6 +23,7 @@ def builder_music(target, source, env):
         print stderr
         return -1
     if returncode != 0:
+        print stdout
         return 1
     
     return 0
