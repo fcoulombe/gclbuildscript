@@ -39,7 +39,7 @@ def builder_unit_test_with_valgrind(target, source, env):
 
     app = str(source[0].abspath)
     cwd = os.getcwd()
-    cmdLine = [valgrindExe + extraValgrindOptions + " " + app + testArguments]
+    cmdLine = [valgrindExe , extraValgrindOptions , app , testArguments]
     print cmdLine
     p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
     stdout, stderr  = p.communicate()
@@ -69,7 +69,7 @@ def builder_unit_test(target, source, env):
     #print "[test] %s " % str(source[0])
     app = str(source[0].abspath)
     cwd = os.getcwd()
-    cmdLine = [app+testArguments]
+    cmdLine = [app, testArguments]
     
     p = subprocess.Popen(cmdLine, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(app))
     stdout, stderr  = p.communicate()
