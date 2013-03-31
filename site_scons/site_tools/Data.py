@@ -51,7 +51,7 @@ def Data(self, target):
     
 def generate(env, *args, **kw):
     global modList
-    pipelineDir = env.Dir("#site_scons/site_tools/pipelines/").abspath
+    pipelineDir = env.Dir("#gclbuildscript/site_scons/site_tools/pipelines/").abspath
     sys.path.append(pipelineDir)
     modList = dict()
     # Create a builders for Data
@@ -64,7 +64,7 @@ def generate(env, *args, **kw):
             continue
         mod = __import__(modname)
         modList[modname] = mod
-        print modname
+        #print modname
         modList[modname].pipeline.generate(env)
 
 def exists():
